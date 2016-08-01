@@ -48,6 +48,7 @@ const Select = React.createClass({
 		escapeClearsValue: React.PropTypes.bool,    // whether escape clears the value when the menu is closed
 		filterOption: React.PropTypes.func,         // method to filter a single option (option, filterString)
 		filterOptions: React.PropTypes.any,         // boolean to enable default filtering or function to filter the options array ([options], filterString, [values])
+		filterSelected: React.PropTypes.bool, 			//boolean to filter the selected option in case of multi select
 		ignoreAccents: React.PropTypes.bool,        // whether to strip diacritics when filtering
 		ignoreCase: React.PropTypes.bool,           // whether to perform case-insensitive filtering
 		inputProps: React.PropTypes.object,         // custom attributes for the Input
@@ -113,6 +114,7 @@ const Select = React.createClass({
 			disabled: false,
 			escapeClearsValue: true,
 			filterOptions: true,
+			filterSelected: true,
 			ignoreAccents: true,
 			ignoreCase: true,
 			inputProps: {},
@@ -898,6 +900,7 @@ const Select = React.createClass({
 							isFocused={isFocused}
 							key={`option-${i}-${option[this.props.valueKey]}`}
 							onSelect={this.selectValue}
+							onRemove={this.removeValue}
 							onFocus={this.focusOption}
 							option={option}
 							isSelected={isSelected}
@@ -980,7 +983,7 @@ const Select = React.createClass({
 
 	render () {
 		let valueArray = this.getValueArray(this.props.value);
-		let options = this._visibleOptions = this.filterOptions(this.props.multi ? valueArray : null);
+		let options = this._visibleOptions = this.filterOptions(this.props.multi && this.props.filterSelected ? valueArray : null);
 		let isOpen = this.state.isOpen;
 		if (this.props.multi && !options.length && valueArray.length && !this.state.inputValue) isOpen = false;
 		const focusedOptionIndex = this.getFocusableOptionIndex(valueArray[0]);
@@ -1040,7 +1043,7 @@ const Select = React.createClass({
 					{this.renderClear()}
 					{this.renderArrow()}
 				</div>
-				{isOpen ? this.renderOuter(options, !this.props.multi ? valueArray : null, focusedOption) : null}
+				{isOpen ? this.renderOuter(options, !this.props.multi || !this.props.filterSelected ? valueArray : null, focusedOption) : null}
 			</div>
 		);
 	}
